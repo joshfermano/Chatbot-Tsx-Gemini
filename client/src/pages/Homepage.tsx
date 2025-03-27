@@ -20,21 +20,39 @@ const Homepage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Listen for logout events
+  useEffect(() => {
+    const handleLogout = () => {
+      setMessages([]);
+    };
+
+    window.addEventListener('userLoggedOut', handleLogout);
+
+    return () => {
+      window.removeEventListener('userLoggedOut', handleLogout);
+    };
+  }, []);
+
+  // Load guest messages from localStorage
   useEffect(() => {
     if (!isAuthenticated) {
       const savedMessages = localStorage.getItem('guestChat');
       if (savedMessages) {
         setMessages(JSON.parse(savedMessages));
+      } else {
+        setMessages([]);
       }
     }
   }, [isAuthenticated]);
 
+  // Save guest messages to localStorage
   useEffect(() => {
     if (!isAuthenticated && messages.length > 0) {
       localStorage.setItem('guestChat', JSON.stringify(messages));
     }
   }, [messages, isAuthenticated]);
 
+  // Listen for conversation updates
   useEffect(() => {
     const handleConversationUpdate = () => {
       if (activeConversation) {
@@ -52,6 +70,8 @@ const Homepage = () => {
   }, [activeConversation]);
 
   const fetchMessages = async (conversationId: string) => {
+    if (!isAuthenticated) return;
+
     try {
       const response = await fetchWithAuth(
         `/api/conversations/${conversationId}/messages`
@@ -66,42 +86,15 @@ const Homepage = () => {
     }
   };
 
-  // Update the activeConversation effect
+  // Update messages when active conversation changes
   useEffect(() => {
-    if (activeConversation) {
+    if (isAuthenticated && activeConversation) {
       fetchMessages(activeConversation);
+    } else if (!isAuthenticated) {
+      // Load guest messages (already handled in another useEffect)
     } else {
       setMessages([]);
     }
-  }, [activeConversation]);
-
-  useEffect(() => {
-    const loadMessages = async () => {
-      if (isAuthenticated && activeConversation) {
-        try {
-          const response = await fetchWithAuth(
-            `/api/conversations/${activeConversation}/messages`
-          );
-
-          if (response.ok) {
-            const data = await response.json();
-            setMessages(data.messages || []);
-          }
-        } catch (error) {
-          console.error('Failed to fetch messages:', error);
-        }
-      } else if (!isAuthenticated) {
-        // Load guest messages from localStorage
-        const savedMessages = localStorage.getItem('guestChat');
-        if (savedMessages) {
-          setMessages(JSON.parse(savedMessages));
-        } else {
-          setMessages([]);
-        }
-      }
-    };
-
-    loadMessages();
   }, [activeConversation, isAuthenticated]);
 
   const handleSendMessage = async (messageText: string) => {
@@ -156,7 +149,7 @@ const Homepage = () => {
     }
   };
 
-  // New function to clear conversation for guest mode
+  // Function to clear conversation for guest mode
   const handleClearConversation = () => {
     if (!isAuthenticated) {
       // Clear messages state

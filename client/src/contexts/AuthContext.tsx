@@ -129,6 +129,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Logout failed');
       }
 
+      // Clear guest chat data from localStorage
+      localStorage.removeItem('guestChat');
+
+      // Dispatch logout event for other components to respond
+      window.dispatchEvent(new CustomEvent('userLoggedOut'));
+
       setUser(null);
       setError(null);
     } catch (error) {
