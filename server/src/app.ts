@@ -4,7 +4,6 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
 import chatRoutes from './routes/chatRoutes';
 import conversationRoutes from './routes/conversationRoutes';
-import { Request, Response, NextFunction } from 'express';
 import { connectDb } from './config/db';
 import 'dotenv/config';
 
@@ -23,43 +22,15 @@ const allowedOrigins = [
   'http://localhost:5173',
 ];
 
-// Handle CORS before any other middleware
-app.use((req: Request, res: Response, next: NextFunction): void => {
-  const origin = req.headers.origin;
-  if (
-    origin &&
-    (allowedOrigins.includes(origin) || NODE_ENV === 'development')
-  ) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PUT, DELETE, OPTIONS'
-  );
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Content-Type, Authorization, X-Requested-With'
-  );
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-    return;
-  }
-
-  next();
-});
-
-// Additional cors middleware
+// Use a single CORS configuration - this is critical for consistency
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        NODE_ENV === 'development'
-      ) {
+      // Allow requests with no origin (like mobile apps, curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin) || NODE_ENV === 'development') {
+        // Set the specific origin instead of '*'
         callback(null, true);
       } else {
         console.log('Blocked by CORS:', origin);
@@ -76,6 +47,9 @@ app.use(
     optionsSuccessStatus: 200,
   })
 );
+
+// Special handling for OPTIONS requests (preflight)
+app.options('*', cors());
 
 app.use(cookieParser());
 app.use(express.json());
