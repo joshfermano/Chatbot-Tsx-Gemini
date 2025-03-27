@@ -1,6 +1,9 @@
 import { useRef, useEffect } from 'react';
 import { FiUser } from 'react-icons/fi';
 import { BsRobot } from 'react-icons/bs';
+import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   role: 'user' | 'model';
@@ -62,7 +65,59 @@ const ChatArea = ({ messages = [], loading = false }: ChatAreaProps) => {
                     </>
                   )}
                 </div>
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                {message.role === 'model' ? (
+                  <div className="markdown-content">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeSanitize]}
+                      components={{
+                        p: ({ node, ...props }) => (
+                          <p className="mb-4 last:mb-0" {...props} />
+                        ),
+                        ul: ({ node, ...props }) => (
+                          <ul className="list-disc pl-5 mb-4" {...props} />
+                        ),
+                        ol: ({ node, ...props }) => (
+                          <ol className="list-decimal pl-5 mb-4" {...props} />
+                        ),
+                        li: ({ node, ...props }) => (
+                          <li className="mb-1" {...props} />
+                        ),
+                        strong: ({ node, ...props }) => (
+                          <strong className="font-bold" {...props} />
+                        ),
+                        h1: ({ node, ...props }) => (
+                          <h1 className="text-xl font-bold my-3" {...props} />
+                        ),
+                        h2: ({ node, ...props }) => (
+                          <h2 className="text-lg font-bold my-2" {...props} />
+                        ),
+                        h3: ({ node, ...props }) => (
+                          <h3 className="text-md font-bold my-2" {...props} />
+                        ),
+                        code: ({
+                          node,
+                          inline,
+                          ...props
+                        }: { node?: any; inline?: boolean } & any) =>
+                          inline ? (
+                            <code
+                              className="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded"
+                              {...props}
+                            />
+                          ) : (
+                            <code
+                              className="block bg-gray-200 dark:bg-gray-700 p-2 rounded my-2 overflow-x-auto"
+                              {...props}
+                            />
+                          ),
+                      }}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                )}
               </div>
             </div>
           ))}
