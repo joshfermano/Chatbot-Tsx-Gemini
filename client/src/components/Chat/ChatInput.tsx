@@ -1,18 +1,25 @@
 import { useState, FormEvent, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiSend } from 'react-icons/fi';
+import { FiSend, FiTrash2 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import LoginPrompt from './LoginPrompt';
+import ClearConfirmationDialog from './ClearConfirmationDialog';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   isLoading: boolean;
+  onClearConversation?: () => void;
 }
 
-const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
+const ChatInput = ({
+  onSendMessage,
+  isLoading,
+  onClearConversation,
+}: ChatInputProps) => {
   const { isAuthenticated } = useAuth();
   const [message, setMessage] = useState('');
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showClearConfirmation, setShowClearConfirmation] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -43,6 +50,10 @@ const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
       e.preventDefault();
       handleSubmit(e);
     }
+  };
+
+  const handleClearClick = () => {
+    setShowClearConfirmation(true);
   };
 
   return (
@@ -80,19 +91,30 @@ const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
             <FiSend size={18} />
           </button>
         </form>
-        <div className="text-xs text-center mt-2 text-gray-500 dark:text-gray-400">
-          {isAuthenticated ? (
-            'Press Enter to send, Shift+Enter for new line'
-          ) : (
-            <>
-              Guest Mode -{' '}
-              <Link
-                to="/auth/login"
-                className="text-indigo-600 hover:text-indigo-500">
-                Sign in
-              </Link>{' '}
-              to save conversations
-            </>
+        <div className="flex items-center justify-between mt-2">
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            {isAuthenticated ? (
+              'Press Enter to send, Shift+Enter for new line'
+            ) : (
+              <>
+                Guest Mode -{' '}
+                <Link
+                  to="/auth/login"
+                  className="text-indigo-600 hover:text-indigo-500">
+                  Sign in
+                </Link>{' '}
+                to save conversations
+              </>
+            )}
+          </div>
+
+          {!isAuthenticated && (
+            <button
+              onClick={handleClearClick}
+              className="flex items-center text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+              aria-label="Clear conversation">
+              <FiTrash2 size={14} className="mr-1" /> Clear Conversation
+            </button>
           )}
         </div>
       </div>
@@ -103,6 +125,16 @@ const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
           setShowLoginPrompt(false);
           onSendMessage(message.trim());
           setMessage('');
+        }}
+      />
+
+      <ClearConfirmationDialog
+        isOpen={showClearConfirmation}
+        onClose={() => setShowClearConfirmation(false)}
+        onConfirm={() => {
+          if (onClearConversation) {
+            onClearConversation();
+          }
         }}
       />
     </>

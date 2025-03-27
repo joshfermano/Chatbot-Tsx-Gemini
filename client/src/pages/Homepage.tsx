@@ -156,10 +156,25 @@ const Homepage = () => {
     }
   };
 
+  // New function to clear conversation for guest mode
+  const handleClearConversation = () => {
+    if (!isAuthenticated) {
+      // Clear messages state
+      setMessages([]);
+
+      // Clear localStorage
+      localStorage.removeItem('guestChat');
+    }
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
       <ChatArea messages={messages} loading={loading} />
-      <ChatInput onSendMessage={handleSendMessage} isLoading={loading} />
+      <ChatInput
+        onSendMessage={handleSendMessage}
+        isLoading={loading}
+        onClearConversation={handleClearConversation}
+      />
     </div>
   );
 };
