@@ -2,12 +2,13 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
     "start": "node dist/app.js",
-    "dev": "nodemon src/app.ts",
+    "dev": "ts-node src/app.ts",
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -16,23 +17,26 @@
   "dependencies": {
     "@google/genai": "^0.6.0",
     "@google/generative-ai": "^0.24.0",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.12.2"
+    "mongoose": "^8.12.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.12",
-    "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

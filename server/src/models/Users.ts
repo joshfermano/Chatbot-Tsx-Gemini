@@ -1,5 +1,5 @@
 import mongoose, { Model } from 'mongoose';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // Define interfaces for TypeScript support
 interface IUser {
