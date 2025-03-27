@@ -18,4 +18,4 @@ services:
       - key: ACCESS_TOKEN_SECRET
         sync: false
       - key: CLIENT_URL
-        value: https://your-vercel-app-domain.vercel.app
+        value: https://perpsbot-joshfermano.vercel.app
