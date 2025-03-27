@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
 import chatRoutes from './routes/chatRoutes';
 import conversationRoutes from './routes/conversationRoutes';
+import { Request, Response, NextFunction } from 'express';
 import { connectDb } from './config/db';
 import 'dotenv/config';
 
@@ -13,34 +14,68 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 const app = express();
 
-// Configure CORS based on environment
+// Improved CORS configuration
 const allowedOrigins = [
   'https://perpsbot-joshfermano.vercel.app',
+  'https://perpsbot-joshfermano-git-main-josh-khovick-fermanos-projects.vercel.app',
+  'https://perpsbot-joshfermano-im374hg6x-josh-khovick-fermanos-projects.vercel.app',
   CLIENT_URL,
-  'http://localhost:5173'
+  'http://localhost:5173',
 ];
 
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      console.log('Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Access-Control-Allow-Origin'],
-  optionsSuccessStatus: 200
-}));
+// Handle CORS before any other middleware
+app.use((req: Request, res: Response, next: NextFunction): void => {
+  const origin = req.headers.origin;
+  if (
+    origin &&
+    (allowedOrigins.includes(origin) || NODE_ENV === 'development')
+  ) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
 
-// Add OPTIONS handling for preflight requests
-app.options('*', cors());
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PUT, DELETE, OPTIONS'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Authorization, X-Requested-With'
+  );
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+    return;
+  }
+
+  next();
+});
+
+// Additional cors middleware
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        NODE_ENV === 'development'
+      ) {
+        callback(null, true);
+      } else {
+        console.log('Blocked by CORS:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: [
+      'Access-Control-Allow-Origin',
+      'Access-Control-Allow-Credentials',
+    ],
+    optionsSuccessStatus: 200,
+  })
+);
 
 app.use(cookieParser());
 app.use(express.json());

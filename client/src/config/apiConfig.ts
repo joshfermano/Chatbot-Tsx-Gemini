@@ -15,5 +15,28 @@ export const fetchWithAuth = async (
     },
   };
 
-  return fetch(url, fetchOptions);
+  try {
+    return await fetch(url, fetchOptions);
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+
+    // Create a custom response for network/CORS errors
+    if (
+      error instanceof TypeError &&
+      error.message.includes('Failed to fetch')
+    ) {
+      console.warn(
+        'CORS or network error detected, returning fallback error response'
+      );
+      return new Response(
+        JSON.stringify({
+          error: 'Network error',
+          message: 'Unable to connect to server. Please try again later.',
+        }),
+        { status: 503, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    throw error;
+  }
 };
