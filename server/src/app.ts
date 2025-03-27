@@ -14,17 +14,34 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 const app = express();
 
 // Configure CORS based on environment
-const corsOptions = {
-  origin:
-    NODE_ENV === 'production'
-      ? [CLIENT_URL, 'https://perpsbot-joshfermano.vercel.app']
-      : CLIENT_URL,
+const allowedOrigins = [
+  'https://perpsbot-joshfermano.vercel.app',
+  CLIENT_URL,
+  'http://localhost:5173'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-};
+  exposedHeaders: ['Access-Control-Allow-Origin'],
+  optionsSuccessStatus: 200
+}));
 
-app.use(cors(corsOptions));
+// Add OPTIONS handling for preflight requests
+app.options('*', cors());
+
 app.use(cookieParser());
 app.use(express.json());
 
@@ -51,7 +68,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`✨ Server running in ${NODE_ENV} mode on port: ${PORT}`);
-      console.log(`🌐 CORS enabled for origin: ${corsOptions.origin}`);
+      console.log(`🌐 CORS enabled for origins: ${allowedOrigins.join(', ')}`);
     });
   } catch (error) {
     console.error('❌ Server startup failed:', error);
