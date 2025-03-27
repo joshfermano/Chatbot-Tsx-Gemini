@@ -8,7 +8,8 @@
     "dev": "ts-node src/app.ts",
     "build": "tsc",
     "watch": "tsc -w",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "render-build": "npm install bcryptjs @types/bcryptjs --no-save && npm run build"
   },
   "keywords": [],
   "author": "",
@@ -25,10 +26,10 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "@types/bcryptjs": "^2.4.6"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
@@ -37,6 +38,6 @@
     "nodemon": "^3.1.9"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": "16.x"
   }
 }
