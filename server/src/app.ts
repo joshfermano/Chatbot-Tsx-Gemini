@@ -28,8 +28,6 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
-// Remove the problematic middleware - we'll handle cookies directly in controllers
-
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
