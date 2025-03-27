@@ -18,14 +18,17 @@ interface LoginRequest extends Request {
   };
 }
 
-// Cookie options
-const cookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-  maxAge: 24 * 60 * 60 * 1000, // 24 hours
-  path: '/',
-} as const;
+// Get cookie settings based on environment
+const getCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000,
+    path: '/',
+  } as const;
+};
 
 export const register = async (req: RegisterRequest, res: Response) => {
   const { username, email, password } = req.body;
@@ -48,7 +51,7 @@ export const register = async (req: RegisterRequest, res: Response) => {
     );
 
     // Set token in HTTP-only cookie
-    res.cookie('token', token, cookieOptions);
+    res.cookie('token', token, getCookieOptions());
 
     // Return user info (without sensitive data)
     res.status(201).json({
@@ -71,7 +74,7 @@ export const login = async (req: LoginRequest, res: Response) => {
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'User not found' });
+      return res.status(400).json({ message: 'Invalid credentials' }); // Better security to use generic message
     }
 
     // Check if password is correct
@@ -88,7 +91,7 @@ export const login = async (req: LoginRequest, res: Response) => {
     );
 
     // Set token in HTTP-only cookie
-    res.cookie('token', token, cookieOptions);
+    res.cookie('token', token, getCookieOptions());
 
     // Return user info
     res.status(200).json({
@@ -108,10 +111,8 @@ export const logout = async (req: Request, res: Response) => {
   try {
     // Clear the auth cookie
     res.clearCookie('token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-      path: '/',
+      ...getCookieOptions(),
+      maxAge: 0,
     });
 
     res.status(200).json({ message: 'Logged out successfully' });

@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import { fetchWithAuth } from '../config/apiConfig';
 
 interface Conversation {
   id: string;
@@ -33,12 +34,7 @@ const MainLayout = () => {
       }
 
       try {
-        const response = await fetch(
-          'http://localhost:5000/api/conversations',
-          {
-            credentials: 'include',
-          }
-        );
+        const response = await fetchWithAuth('/api/conversations');
 
         if (response.ok) {
           const data = await response.json();
@@ -82,12 +78,8 @@ const MainLayout = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/conversations', {
+      const response = await fetchWithAuth('/api/conversations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
           title: `Chat ${conversations.length + 1}`,
         }),
@@ -110,13 +102,9 @@ const MainLayout = () => {
     if (!isAuthenticated) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/conversations/${id}`,
-        {
-          method: 'DELETE',
-          credentials: 'include',
-        }
-      );
+      const response = await fetchWithAuth(`/api/conversations/${id}`, {
+        method: 'DELETE',
+      });
 
       if (response.ok) {
         setConversations((prev) => prev.filter((conv) => conv.id !== id));
@@ -133,12 +121,7 @@ const MainLayout = () => {
     const createInitialConversation = async () => {
       if (isAuthenticated) {
         try {
-          const response = await fetch(
-            'http://localhost:5000/api/conversations',
-            {
-              credentials: 'include',
-            }
-          );
+          const response = await fetchWithAuth('/api/conversations');
 
           if (response.ok) {
             const existingConversations = await response.json();
@@ -148,19 +131,12 @@ const MainLayout = () => {
               return;
             }
 
-            const createResponse = await fetch(
-              'http://localhost:5000/api/conversations',
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                  title: 'First Chat',
-                }),
-              }
-            );
+            const createResponse = await fetchWithAuth('/api/conversations', {
+              method: 'POST',
+              body: JSON.stringify({
+                title: 'First Chat',
+              }),
+            });
 
             if (createResponse.ok) {
               const newConversation = await createResponse.json();

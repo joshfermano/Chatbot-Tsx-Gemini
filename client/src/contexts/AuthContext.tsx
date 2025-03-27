@@ -5,6 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from 'react';
+import { fetchWithAuth } from '../config/apiConfig';
 
 interface User {
   username: string;
@@ -36,10 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const verifySession = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:5000/api/auth/verify', {
-        method: 'GET',
-        credentials: 'include', // Important for sending cookies
-      });
+      const response = await fetchWithAuth('/api/auth/verify');
 
       if (!response.ok) {
         throw new Error('Authentication failed');
@@ -69,10 +67,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       setError(null);
 
-      const res = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetchWithAuth('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Important for receiving cookies
         body: JSON.stringify({ username, email, password }),
       });
 
@@ -98,10 +94,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       setError(null);
 
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetchWithAuth('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Important for receiving cookies
         body: JSON.stringify({ email, password }),
       });
 
@@ -127,9 +121,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
 
       // Call logout endpoint to clear the cookie
-      const response = await fetch('http://localhost:5000/api/auth/logout', {
+      const response = await fetchWithAuth('/api/auth/logout', {
         method: 'POST',
-        credentials: 'include',
       });
 
       if (!response.ok) {

@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ChatArea from '../components/Chat/ChatArea';
 import ChatInput from '../components/Chat/ChatInput';
+import { fetchWithAuth } from '../config/apiConfig';
 
 interface Message {
   role: 'user' | 'model';
@@ -52,11 +53,8 @@ const Homepage = () => {
 
   const fetchMessages = async (conversationId: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/conversations/${conversationId}/messages`,
-        {
-          credentials: 'include',
-        }
+      const response = await fetchWithAuth(
+        `/api/conversations/${conversationId}/messages`
       );
 
       if (response.ok) {
@@ -81,11 +79,8 @@ const Homepage = () => {
     const loadMessages = async () => {
       if (isAuthenticated && activeConversation) {
         try {
-          const response = await fetch(
-            `http://localhost:5000/api/conversations/${activeConversation}/messages`,
-            {
-              credentials: 'include',
-            }
+          const response = await fetchWithAuth(
+            `/api/conversations/${activeConversation}/messages`
           );
 
           if (response.ok) {
@@ -119,12 +114,8 @@ const Homepage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/chats/message', {
+      const response = await fetchWithAuth('/api/chats/message', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
           message: messageText,
           conversationId: isAuthenticated ? activeConversation : 'guest',
