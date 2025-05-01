@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FiX, FiLogIn, FiUserPlus } from 'react-icons/fi';
+import { FiArrowRight } from 'react-icons/fi';
 
 interface LoginPromptProps {
   isOpen: boolean;
@@ -10,44 +10,49 @@ const LoginPrompt = ({ isOpen, onClose }: LoginPromptProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-          <FiX size={24} />
-        </button>
-
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Want to save your conversations?
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all">
+      <div
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-sm w-full mx-4 overflow-hidden transition-all"
+        onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="py-6 px-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-750 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+            Save your conversations
           </h2>
-          <p className="text-gray-600 dark:text-gray-300">
-            Sign in or create an account to save your chat history
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Create an account to access your chat history anywhere
           </p>
         </div>
 
-        <div className="space-y-4">
+        {/* Body */}
+        <div className="p-6 space-y-4">
           <Link
             to="/auth/login"
-            className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-            <FiLogIn className="mr-2" /> Sign In
+            className="w-full flex justify-between items-center px-4 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-white bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/60 dark:hover:bg-gray-700 transition-colors">
+            Sign in with existing account
+            <FiArrowRight className="text-gray-400" />
           </Link>
+
           <Link
             to="/auth/register"
-            className="w-full flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">
-            <FiUserPlus className="mr-2" /> Create Account
+            className="w-full flex justify-between items-center px-4 py-3 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-colors">
+            Create new account
+            <FiArrowRight className="text-white/70" />
           </Link>
         </div>
 
-        <div className="mt-6 text-center">
+        {/* Footer */}
+        <div className="p-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 text-center">
           <button
             onClick={onClose}
-            className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-            Continue as Guest
+            className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors">
+            Continue without account
           </button>
         </div>
       </div>
+
+      {/* Backdrop click to close */}
+      <div className="absolute inset-0 -z-10" onClick={onClose}></div>
     </div>
   );
 };

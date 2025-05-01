@@ -161,13 +161,29 @@ const Homepage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)]">
-      <ChatArea messages={messages} loading={loading} />
-      <ChatInput
-        onSendMessage={handleSendMessage}
-        isLoading={loading}
-        onClearConversation={handleClearConversation}
-      />
+    <div className="flex flex-col h-[calc(100vh-64px)] relative overflow-hidden py-3">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-10 dark:opacity-20">
+        <div className="absolute top-0 right-0 bg-gradient-to-b from-blue-600 to-indigo-700 w-72 h-72 rounded-full blur-3xl transform -translate-y-24 translate-x-24"></div>
+        <div className="absolute bottom-0 left-0 bg-gradient-to-t from-indigo-600 to-blue-700 w-72 h-72 rounded-full blur-3xl transform translate-y-16 -translate-x-16"></div>
+      </div>
+
+      {/* Subtle pattern overlay */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-30 dark:opacity-20 bg-grid-pattern"></div>
+
+      {/* Content */}
+      <div className="flex flex-col h-full z-10 py-3 space-y-2">
+        <ChatArea
+          messages={messages}
+          loading={loading}
+          onSendMessage={handleSendMessage}
+        />
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          isLoading={loading}
+          onClearConversation={handleClearConversation}
+        />
+      </div>
     </div>
   );
 };
